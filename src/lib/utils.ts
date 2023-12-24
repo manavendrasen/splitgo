@@ -4,3 +4,8 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export function getInitials(name: string) {
+  const [firstName, lastName] = name.split(" ");
+  return `${firstName[0].toUpperCase()}${lastName[0].toUpperCase()}`;
+}

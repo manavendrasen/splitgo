@@ -1,11 +1,24 @@
 import "./App.css";
-import { Button } from "./components/ui/button";
+import AddTransaction from "./pages/AddTransaction";
+import Home from "./pages/Home";
+import { ThemeProvider } from "./store/ThemeProvider";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Home />,
+  },
+  {
+    path: "/add-expense",
+    element: <AddTransaction />,
+  },
+]);
 
 function App() {
   return (
-    <div>
-      <Button>Hello</Button>
-    </div>
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   );
 }
 
