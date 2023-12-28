@@ -1,8 +1,10 @@
 import "./App.css";
 import AddTransaction from "./pages/AddTransaction";
 import Home from "./pages/Home";
+import { ParticipantProvider } from "./store/ParticipantStore";
 import { ThemeProvider } from "./store/ThemeProvider";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -17,7 +19,10 @@ const router = createBrowserRouter([
 function App() {
   return (
     <ThemeProvider>
-      <RouterProvider router={router} />
+      <ParticipantProvider>
+        <RouterProvider router={router} />
+        <Toaster richColors />
+      </ParticipantProvider>
     </ThemeProvider>
   );
 }

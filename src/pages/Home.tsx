@@ -2,13 +2,18 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 const Home = () => {
   return (
-    <div className="fixed bottom-0 left-0 bg-secondary flex justify-center items-center p-4 flex-1 w-full">
-      <a href="/add-expense">
-        <Button>
-          <Plus />
-        </Button>
-      </a>
-    </div>
+    <main>
+      <div className="flex justify-center items-center mt-10">
+        <p className="text-lg text-center font-semibold">SplitGo</p>
+      </div>
+      <div className="fixed bottom-5 right-5 bg-secondary rounded-full">
+        <a href="/add-expense">
+          <Button className="rounded-full">
+            <Plus />
+          </Button>
+        </a>
+      </div>
+    </main>
   );
 };
 
