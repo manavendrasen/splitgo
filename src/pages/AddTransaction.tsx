@@ -19,6 +19,7 @@ import { AddUser } from "@/components/AddUser";
 import { useParticipant } from "@/store/ParticipantStore";
 import { ParticipantType } from "@/constants/ParticipantType";
 import { getInitials } from "@/lib/utils";
+import { TopBackground } from "@/components/background/Background";
 
 const AddTransaction = () => {
   const [totalPayerAmount, setTotalPayerAmount] = useState(0);
@@ -63,18 +64,20 @@ const AddTransaction = () => {
       return acc;
     }, 0);
 
-    console.log(owerTotal, totalPayerAmount);
+    console.log(owerTotal === totalPayerAmount);
 
     if (
-      owerTotal !== totalPayerAmount ||
-      totalPayerAmount >= 0 ||
-      owerTotal >= 0
+      Number(owerTotal) - Number(totalPayerAmount) > 1 ||
+      totalPayerAmount <= 0 ||
+      owerTotal <= 0
     ) {
       toast.error(
         `Split amount should be equal to Paid amount. Adjust Rs.${Math.abs(
           owerTotal - totalPayerAmount
         )}.`
       );
+    } else {
+      toast.success("Expense added successfully.");
     }
   }
 
@@ -112,41 +115,94 @@ const AddTransaction = () => {
   }, [form]);
 
   return (
-    <div className="text-left mt-8">
-      <h1 className="text-2xl font-semibold mb-8">Add Expense</h1>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-4"
-        >
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter a description" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+    <main>
+      <TopBackground />
+      <div className="text-left mt-8">
+        <h1 className="text-2xl font-semibold mb-8">Add Expense</h1>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    <p className="text-sm uppercase text-slate-300">
+                      Description
+                    </p>
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter a description" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between items-center">
-              <p className="text-sm uppercase text-slate-300">Paid By</p>
-              <AddUser type={ParticipantType.PAYER} />
-            </div>
-            {payers.map((payer: string) => (
-              <UserItem
-                key={payer}
-                name={payer}
-                form={
-                  owers.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center mt-4">
+                <p className="text-sm uppercase text-slate-300">Paid By</p>
+                <AddUser type={ParticipantType.PAYER} />
+              </div>
+              {payers.map((payer: string) => (
+                <UserItem
+                  key={payer}
+                  name={payer}
+                  form={
+                    owers.length > 0 && (
+                      <FormField
+                        control={form.control}
+                        name={`payer-${payer}`}
+                        render={({ field }) => (
+                          <div className="col-span-2 text-right">
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  placeholder="0.00"
+                                  inputMode="numeric"
+                                  {...field}
+                                  className="text-right"
+                                />
+                              </FormControl>
+                            </FormItem>
+                          </div>
+                        )}
+                      />
+                    )
+                  }
+                />
+              ))}
+              {payers.length == 0 && (
+                <p className="text-xs text-slate-400 text-center mb-12 ">
+                  Add Friend to split expense.
+                </p>
+              )}
+              {payers.length > 0 && (
+                <>
+                  <div className="flex justify-between items-center mt-4">
+                    <p className="text-sm uppercase text-slate-300">
+                      Split Between
+                    </p>
+                    <AddUser type={ParticipantType.OWER} />
+                  </div>
+                  {/* {owers.length == 0 && (
+                    <p className="text-xs text-slate-400 text-center">
+                      Add Friend
+                    </p>
+                  )} */}
+                </>
+              )}
+              {owers.map((ower: string) => (
+                <UserItem
+                  key={ower}
+                  name={ower}
+                  form={
                     <FormField
                       control={form.control}
-                      name={`payer-${payer}`}
+                      name={`ower-${ower}`}
                       render={({ field }) => (
                         <div className="col-span-2 text-right">
                           <FormItem>
@@ -162,105 +218,19 @@ const AddTransaction = () => {
                         </div>
                       )}
                     />
-                  )
-                }
-              />
-            ))}
-            {payers.length == 0 && (
-              <p className="text-xs text-slate-400 text-center mb-12 ">
-                Add Friend to split expense.
-              </p>
+                  }
+                />
+              ))}
+            </div>
+            {owers.length > 0 && payers.length > 0 && (
+              <Button type="submit" className="mt-4">
+                Split
+              </Button>
             )}
-            {payers.length > 0 && (
-              <>
-                <div className="flex justify-between items-center">
-                  <p className="text-sm uppercase text-slate-300">
-                    Split Between
-                  </p>
-                  <AddUser type={ParticipantType.OWER} />
-                </div>
-                {owers.length == 0 && (
-                  <p className="text-xs text-slate-400 text-center">
-                    Add Friend
-                  </p>
-                )}
-              </>
-            )}
-            {owers.map((ower: string) => (
-              <UserItem
-                key={ower}
-                name={ower}
-                form={
-                  <FormField
-                    control={form.control}
-                    name={`ower-${ower}`}
-                    render={({ field }) => (
-                      <div className="col-span-2 text-right">
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              placeholder="0.00"
-                              inputMode="numeric"
-                              {...field}
-                              className="text-right"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      </div>
-                    )}
-                  />
-                }
-              />
-            ))}
-          </div>
-
-          {/* <div className="grid grid-cols-6 items-center">
-                  <Avatar>
-                    <AvatarImage src="" />
-                    <AvatarFallback>MS</AvatarFallback>
-                  </Avatar>
-                  <p className="col-span-4">Manavendra Sen</p>
-                  <FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="0.00" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <div className="grid grid-cols-6 items-center">
-                  <Avatar>
-                    <AvatarImage src="" />
-                    <AvatarFallback>MS</AvatarFallback>
-                  </Avatar>
-                  <p className="col-span-4">Divyanshu Sharma</p>
-                  <FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="0.00" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div> */}
-
-          {owers.length > 0 && payers.length > 0 && (
-            <Button type="submit" className="mt-4">
-              Split
-            </Button>
-          )}
-        </form>
-      </Form>
-    </div>
+          </form>
+        </Form>
+      </div>
+    </main>
   );
 };
 

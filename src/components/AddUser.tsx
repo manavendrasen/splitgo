@@ -21,7 +21,7 @@ export function AddUser({ type }: { type: ParticipantType }) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" className="float-right my-4 pr-0">
+        <Button variant="ghost" className="px-3">
           <User size={16} />
         </Button>
       </SheetTrigger>
@@ -30,7 +30,7 @@ export function AddUser({ type }: { type: ParticipantType }) {
           <SheetTitle>Add Participant</SheetTitle>
           <SheetDescription></SheetDescription>
         </SheetHeader>
-        <div className="flex flex-col gap-4 mt-4 pr-0">
+        <div className="flex flex-col gap-2 mt-4 pr-0">
           {USERS.map(name => (
             <UserItem name={name} type={type} key={name} />
           ))}
@@ -52,7 +52,7 @@ const UserItem = ({ name, type }: { name: string; type: ParticipantType }) => {
     return (
       <div
         className={`grid grid-cols-6 items-center p-2 ${
-          owers.includes(name) ? "bg-accent bg-opacity-10" : ""
+          owers.includes(name) ? "bg-transparent backdrop-brightness-150" : ""
         }`}
         onClick={() => {
           if (owers.includes(name)) {
@@ -73,7 +73,7 @@ const UserItem = ({ name, type }: { name: string; type: ParticipantType }) => {
     return (
       <div
         className={`grid grid-cols-6 items-center p-2 ${
-          payers.includes(name) ? "bg-accent bg-opacity-10" : ""
+          payers.includes(name) ? "bg-transparent backdrop-brightness-150" : ""
         }`}
         onClick={() => {
           if (payers.includes(name)) {
