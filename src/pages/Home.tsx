@@ -1,11 +1,11 @@
-import { Background } from "@/components/background/Background";
+// import { Background } from "@/components/background/Background";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Logo from "@/assets/logo.svg";
 const Home = () => {
   return (
     <main>
-      <Background />
+      {/* <Background /> */}
       <div className="flex justify-center items-center h-[calc(100vh-100px)] mix-blend-overlay">
         <img src={Logo} alt="Logo" className="w-48" />
       </div>

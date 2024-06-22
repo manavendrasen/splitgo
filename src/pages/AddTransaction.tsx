@@ -12,6 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
@@ -20,10 +21,18 @@ import { useParticipant } from "@/store/ParticipantStore";
 import { ParticipantType } from "@/constants/ParticipantType";
 import { getInitials } from "@/lib/utils";
 import { TopBackground } from "@/components/background/Background";
+import { useQuery } from "@tanstack/react-query";
+import { getCategories } from "@/api/categoriesAPI";
 
 const AddTransaction = () => {
   const [totalPayerAmount, setTotalPayerAmount] = useState(0);
   const { owers, payers } = useParticipant();
+
+  // const mutation = useMutation({
+  //   mutationFn: () => {},
+  // });
+
+  // const { data } = useQuery(getCategories);
 
   const formSchema = useMemo(() => {
     const scheme = {
@@ -116,9 +125,10 @@ const AddTransaction = () => {
 
   return (
     <main>
-      <TopBackground />
+      {/* <TopBackground /> */}
       <div className="text-left mt-8">
         <h1 className="text-2xl font-semibold mb-8">Add Expense</h1>
+        {/* <p>{data}</p> */}
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
