@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	"gorm.io/gorm"
 )
 
@@ -19,16 +17,12 @@ import (
 
 type User struct {
 	gorm.Model
-	Id             int  `gorm:"primarykey;index"`
-	DisplayName    string
-	Email          string
+	DisplayName    string `gorm:"not null"`
+	Email          string `gorm:"unique"`
 	Password       string
-	PhoneNumber    string
+	PhoneNumber    string `gorm:"unique"`
 	ProfilePicture string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-	
-	FromPayment []Payment `gorm:"foreignKey:FromUserId"` 
-	ToPayment []Payment `gorm:"foreignKey:ToUserId"` 
 
+	FromPayment []Payment `gorm:"foreignKey:FromUserId"`
+	ToPayment   []Payment `gorm:"foreignKey:ToUserId"`
 }
