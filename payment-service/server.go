@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"payment-service/db"
 	"payment-service/handler"
 
 	"github.com/labstack/echo/v4"
@@ -11,6 +12,9 @@ import (
 func main() {
 	e := echo.New()
 	
+	// Initializing Database Connection
+  db.Init()
+
 	// Middleware
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: `${time_rfc3339} >> [${status}][${method}] ${uri} ${error} (${latency_human})` + "\n",
