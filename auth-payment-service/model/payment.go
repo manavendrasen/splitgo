@@ -6,7 +6,9 @@ import (
 
 type Payment struct {
 	gorm.Model
-	Amount     float32
-	FromUserId int
-	ToUserId   int
+	Description string
+	Amount      float32
+	FromUserId  uint
+	// ToUserId    uint
+	To string `gorm:"not null"`
 }

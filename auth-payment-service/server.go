@@ -35,8 +35,8 @@ func main() {
 
 	e.GET("/payment", middleware.Auth(handler.GetPayments))
 	e.POST("/payment", middleware.Auth(handler.AddPayment))
-	e.PATCH("/payment/:id", middleware.Auth(handler.UpdatePayment))
-	e.DELETE("/payment/:id", middleware.Auth(handler.DeletePayment))
+	e.PATCH("/payment", middleware.Auth(handler.UpdatePayment))
+	e.DELETE("/payment", middleware.Auth(handler.DeletePayment))
 
 	e.POST("/sign-up", handler.SignUp)
 	e.POST("/login", handler.Login)
