@@ -20,9 +20,9 @@ import { AddUser } from "@/components/AddUser";
 import { useParticipant } from "@/store/ParticipantStore";
 import { ParticipantType } from "@/constants/ParticipantType";
 import { getInitials } from "@/lib/utils";
-import { TopBackground } from "@/components/background/Background";
-import { useQuery } from "@tanstack/react-query";
-import { getCategories } from "@/api/categoriesAPI";
+// import { TopBackground } from "@/components/background/Background";
+// import { useQuery } from "@tanstack/react-query";
+// import { getCategories } from "@/api/categoriesAPI";
 
 const AddTransaction = () => {
   const [totalPayerAmount, setTotalPayerAmount] = useState(0);
