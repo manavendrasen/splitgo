@@ -5,6 +5,7 @@ import (
 	"os"
 	"payment-service/model"
 	"payment-service/repository"
+	"payment-service/util"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -12,34 +13,25 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Status struct {
-	Message string
-}
-
 func SignUp(c echo.Context) error {
 	var body struct {
-		Email       string
-		Password    string
-		PhoneNumber string
-		DisplayName string
+		Email          string
+		Password       string
+		PhoneNumber    string
+		DisplayName    string
+		ProfilePicture string
 	}
 
 	err := c.Bind(&body)
 	if err != nil {
-		status := &Status{
-			Message: "INVALID_BODY",
-		}
-		return c.JSON(http.StatusBadGateway, status)
+		return c.JSON(http.StatusBadGateway, util.SendMessage("INVALID_BODY"))
 	}
 
 	// Hash password
 	hash, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
 
 	if err != nil {
-		status := &Status{
-			Message: "FAILED_HASH",
-		}
-		return c.JSON(http.StatusBadGateway, status)
+		return c.JSON(http.StatusBadGateway, util.SendMessage("FAILED_HASH"))
 	}
 
 	user := model.User{
@@ -47,22 +39,16 @@ func SignUp(c echo.Context) error {
 		Email:          body.Email,
 		PhoneNumber:    body.PhoneNumber,
 		Password:       string(hash),
-		ProfilePicture: "",
+		ProfilePicture: body.ProfilePicture,
 	}
 
 	err = repository.SignUp(&user)
 
 	if err != nil {
-		status := &Status{
-			Message: "DB_INSERT_ERROR",
-		}
-		return c.JSON(http.StatusBadGateway, status)
+		return c.JSON(http.StatusBadGateway, util.SendMessage("DB_INSERT_ERROR"))
 	}
 
-	status := &Status{
-		Message: "SUCCESS",
-	}
-	return c.JSON(http.StatusOK, status)
+	return c.JSON(http.StatusOK, util.SendMessage("SUCCESS"))
 }
 
 func Login(c echo.Context) error {
@@ -73,26 +59,17 @@ func Login(c echo.Context) error {
 
 	err := c.Bind(&body)
 	if err != nil {
-		status := &Status{
-			Message: "INVALID_BODY",
-		}
-		return c.JSON(http.StatusBadGateway, status)
+		return c.JSON(http.StatusBadGateway, util.SendMessage("INVALID_BODY"))
 	}
 
 	user, err := repository.Login(body.Email)
 
 	if err != nil {
-		status := &Status{
-			Message: err.Error(),
-		}
-		return c.JSON(http.StatusUnauthorized, status)
+		return c.JSON(http.StatusUnauthorized, util.SendMessage(err.Error()))
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.Password)) != nil {
-		status := &Status{
-			Message: "INVALID_EMAIL_OR_PASSWORD",
-		}
-		return c.JSON(http.StatusUnauthorized, status)
+		return c.JSON(http.StatusUnauthorized, util.SendMessage("INVALID_EMAIL_OR_PASSWORD"))
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
@@ -105,10 +82,7 @@ func Login(c echo.Context) error {
 	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_KEY")))
 
 	if err != nil {
-		status := &Status{
-			Message: "FAILED_TOKEN",
-		}
-		return c.JSON(http.StatusBadGateway, status)
+		return c.JSON(http.StatusBadGateway, util.SendMessage("FAILED_TOKEN_VERIFICATION"))
 	}
 
 	cookie := new(http.Cookie)
@@ -119,8 +93,5 @@ func Login(c echo.Context) error {
 	cookie.Secure = true
 	c.SetCookie(cookie)
 
-	status := &Status{
-		Message: "SUCCESS",
-	}
-	return c.JSON(http.StatusOK, status)
+	return c.JSON(http.StatusOK, util.SendMessage("SUCCESS"))
 }

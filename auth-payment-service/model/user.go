@@ -14,5 +14,4 @@ type User struct {
 	ProfilePicture string
 
 	FromPayment []Payment `gorm:"foreignKey:FromUserId"`
-	// ToPayment   []Payment `gorm:"foreignKey:ToUserId"`
 }

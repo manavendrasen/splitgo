@@ -1,27 +1,31 @@
 package handler
 
 import (
-	"errors"
 	"net/http"
 	"payment-service/middleware"
 	"payment-service/repository"
+	"payment-service/util"
 	"strings"
 
 	"github.com/labstack/echo/v4"
 )
 
+// GetPayments retrieves user payments and returns them as JSON.
 func GetPayments(c echo.Context) error {
 	ac := c.(*middleware.AuthContext)
 	ID, _, _ := ac.GetCurrentUser()
 	payments, err := repository.ViewPayment(ID)
 
 	if err != nil {
-		return errors.New("DB_ERROR")
+		return c.JSON(http.StatusBadGateway, util.SendMessage(err.Error()))
 	}
 
 	return c.JSON(http.StatusOK, payments)
 }
 
+// AddPayment processes the request to add a new payment.
+// It extracts the current user's ID from the authentication context,
+// then reads and validates the request body to create a new payment entry.
 func AddPayment(c echo.Context) error {
 	ac := c.(*middleware.AuthContext)
 	ID, _, _ := ac.GetCurrentUser()
@@ -36,32 +40,29 @@ func AddPayment(c echo.Context) error {
 	err := c.Bind(&body)
 
 	if err != nil {
-		status := &Status{
-			Message: "INVALID_BODY",
-		}
-		return c.JSON(http.StatusBadGateway, status)
+		return c.JSON(http.StatusBadGateway, util.SendMessage("INVALID_BODY"))
 	}
 
 	if len(strings.Trim(body.To, " ")) == 0 {
-		status := &Status{
-			Message: "TO_FIELD_REQUIRED",
-		}
-		return c.JSON(http.StatusBadRequest, status)
+		return c.JSON(http.StatusBadRequest, util.SendMessage("TO_FIELD_REQUIRED"))
 	}
 
 	payment, err := repository.AddPayment(ID, body.To, body.Amount, body.Description)
 
 	if err != nil {
-		status := &Status{
-			Message: "DB_ERROR",
-		}
-		return c.JSON(http.StatusBadRequest, status)
+
+		return c.JSON(http.StatusBadRequest, util.SendMessage(err.Error()))
 	}
 
 	return c.JSON(http.StatusOK, payment)
 }
 
+// UpdatePayment updates an existing payment's details.
+// It first verifies the user's identity from the authentication context,
+// then validates the request body for the required fields. If validation passes,
+// it proceeds to update the payment details in the repository.
 func UpdatePayment(c echo.Context) error {
+	// Extract the current user's ID from the authentication context
 	ac := c.(*middleware.AuthContext)
 	ID, _, _ := ac.GetCurrentUser()
 
@@ -75,33 +76,28 @@ func UpdatePayment(c echo.Context) error {
 	err := c.Bind(&body)
 
 	if err != nil {
-		status := &Status{
-			Message: "INVALID_BODY",
-		}
-		return c.JSON(http.StatusBadGateway, status)
+		return c.JSON(http.StatusBadGateway, util.SendMessage("INVALID_BODY"))
 	}
 
 	if len(strings.Trim(body.To, " ")) == 0 {
-		status := &Status{
-			Message: "TO_FIELD_REQUIRED",
-		}
-		return c.JSON(http.StatusBadRequest, status)
+		return c.JSON(http.StatusBadRequest, util.SendMessage("TO_FIELD_REQUIRED"))
 	}
 
-	// add validation if all fields are present or not
+	// TODO: add validation if all fields are present or not
 
 	payment, err := repository.UpdatePayment(ID, body.PaymentID, body.Amount, body.To, body.Description)
 
 	if err != nil {
-		status := &Status{
-			Message: err.Error(),
-		}
-		return c.JSON(http.StatusBadRequest, status)
+		return c.JSON(http.StatusBadRequest, util.SendMessage(err.Error()))
 	}
 
 	return c.JSON(http.StatusOK, payment)
 }
 
+// DeletePayment handles the request to delete a specific payment.
+// It extracts the current user's ID from the authentication context,
+// then reads the payment ID from the request query. After validating the input,
+// it calls the repository to delete the specified payment. 
 func DeletePayment(c echo.Context) error {
 	ac := c.(*middleware.AuthContext)
 	ID, _, _ := ac.GetCurrentUser()
@@ -113,19 +109,13 @@ func DeletePayment(c echo.Context) error {
 	err := c.Bind(&body)
 
 	if err != nil {
-		status := &Status{
-			Message: "INVALID_PARAMS",
-		}
-		return c.JSON(http.StatusBadGateway, status)
+		return c.JSON(http.StatusBadGateway, util.SendMessage("INVALID_PARAMS"))
 	}
 
 	payment, err := repository.DeletePayment(ID, body.PaymentID)
 
 	if err != nil {
-		status := &Status{
-			Message: err.Error(),
-		}
-		return c.JSON(http.StatusBadRequest, status)
+		return c.JSON(http.StatusBadRequest, util.SendMessage(err.Error()))
 	}
 
 	result := make(map[string]int)
