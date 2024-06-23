@@ -1,20 +1,20 @@
-package db
+package database
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
+	"payment-service/model"
 
-	env "github.com/joho/godotenv"
-	// _ "github.com/lib/pq"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
-
-var db *sql.DB
+var db *gorm.DB
 
 func Init() {
-  err := env.Load()
+  err := godotenv.Load()
   if err != nil {
     log.Fatal("Error loading .env file")
   }
@@ -25,20 +25,17 @@ func Init() {
   dbPass := os.Getenv("DB_PASSWORD")
   dbName := os.Getenv("DB_NAME")
 
-  db, err = sql.Open("postgres", fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable", dbHost, dbUser, dbPass, dbName, dbPort))
+  dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUser, dbPass, dbHost, dbPort, dbName)
+  db, err := gorm.Open(postgres.Open(dbUrl), &gorm.Config{})
 
   if err != nil {
     panic(err.Error())
   }
-
-  err = db.Ping()
-  if err != nil {
-    panic(err.Error())
-  }
-
+  
+	db.AutoMigrate(&model.User{}, &model.Payment{})
   fmt.Println("Successfully connected to database!")
 }
 
-func GetDB() *sql.DB{
+func GetDB() *gorm.DB{
     return db
 }

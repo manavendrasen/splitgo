@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	"payment-service/db"
+	"payment-service/database"
 	"payment-service/handler"
 
 	"github.com/labstack/echo/v4"
@@ -13,7 +13,7 @@ func main() {
 	e := echo.New()
 	
 	// Initializing Database Connection
-  db.Init()
+  database.Init()
 
 	// Middleware
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{

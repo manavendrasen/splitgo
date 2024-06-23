@@ -1,12 +1,17 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Payment struct {
-	Id        int       `json:"id"`
-	Amount    float32   `json:"amount"`
-	From      User      `json:"from"`
-	To        User      `json:"to"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	gorm.Model
+	Id         int `gorm:"primarykey"`
+	Amount     float32
+	FromUserId int
+	ToUserId   int
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }

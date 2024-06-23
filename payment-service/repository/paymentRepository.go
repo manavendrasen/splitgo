@@ -1,21 +1,19 @@
 package repository
 
 import (
-	"payment-service/db"
+	"payment-service/database"
 	"payment-service/model"
 )
 
-func ViewPayment() (model.Payment, error)  {
-	db := db.GetDB()
-
-	sqlStatement := `SELECT * FROM Payment`
+func ViewPayment(user model.User) (*model.Payment, error)  {
+	db := database.GetDB()
 
 	var payment model.Payment
-	err := db.QueryRow(sqlStatement).Scan(&payment) 
+	result := db.Where("from = ?", user.Id).Find(&payment)
 
-	if err != nil {
-		return model.Payment{}, err
+	if result.Error != nil {
+		return nil, result.Error
 	}
 
-	return payment, nil
+	return &payment, nil
 }
