@@ -5,19 +5,25 @@ import (
 	"log"
 	"net/http"
 
+	pb "common"
+
 	"github.com/labstack/echo/v4"
 )
 
-
 type AuthContext struct {
 	echo.Context
-	userID          uint
-	userEmail       string
-	userDisplayName string
+	userID               uint
+	userEmail            string
+	userDisplayName      string
+	paymentServiceClient pb.PaymentServiceClient
 }
 
 func (c *AuthContext) GetCurrentUser() (uint, string, string) {
 	return c.userID, c.userEmail, c.userDisplayName
+}
+
+func (c *AuthContext) GetClient() (pb.PaymentServiceClient) {
+	return c.paymentServiceClient
 }
 
 func Auth(next echo.HandlerFunc) echo.HandlerFunc {
@@ -38,10 +44,11 @@ func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 
 		if ok {
 			contextWithUserDetails := &AuthContext{
-				Context:         c,
-				userID:          uint(claims.ID),
-				userEmail:       claims.Email,
-				userDisplayName: claims.DisplayName,
+				Context:              c,
+				userID:               uint(claims.ID),
+				userEmail:            claims.Email,
+				userDisplayName:      claims.DisplayName,
+				// paymentServiceClient: paymentServiceClient,
 			}
 			return next(contextWithUserDetails)
 		} else {

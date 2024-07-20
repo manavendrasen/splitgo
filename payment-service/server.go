@@ -1,23 +1,30 @@
 package main
 
 import (
+	"log"
+	"net"
 	"payment-service/src/database"
 	"payment-service/src/handler"
-	"payment-service/src/middleware"
 
-	"github.com/labstack/echo/v4"
+	"google.golang.org/grpc"
 )
 
 func main() {
-	e := echo.New()
-	e.Use(middleware.Logger())
+	grpcServer := grpc.NewServer()
+	handler.NewHandler(grpcServer)
 
 	// Initializing Database Connection
 	database.ConnectDB()
 
-	e.GET("/", handler.GetAppStatus)
+	l, err := net.Listen("tcp", ":9000")
 
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 
-	e.Logger.Fatal(e.Start(":8080"))
+	defer l.Close()
 
+	if err := grpcServer.Serve(l); err != nil {
+		log.Fatal(err.Error())
+	}
 }

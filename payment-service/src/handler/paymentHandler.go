@@ -1,124 +1,84 @@
 package handler
 
 import (
-	"net/http"
-	"payment-service/src/middleware"
+	"context"
 	"payment-service/src/repository"
-	"payment-service/src/util"
-	"strings"
 
-	"github.com/labstack/echo/v4"
+	pb "common"
+
+	"google.golang.org/grpc"
 )
 
-// GetPayments retrieves user payments and returns them as JSON.
-func GetPayments(c echo.Context) error {
-	ac := c.(*middleware.AuthContext)
-	ID, _, _ := ac.GetCurrentUser()
-	payments, err := repository.ViewPayment(ID)
-
-	if err != nil {
-		return c.JSON(http.StatusBadGateway, util.SendMessage(err.Error()))
-	}
-
-	return c.JSON(http.StatusOK, payments)
+type handler struct {
+	pb.UnimplementedPaymentServiceServer
 }
 
-// AddPayment processes the request to add a new payment.
-// It extracts the current user's ID from the authentication context,
-// then reads and validates the request body to create a new payment entry.
-func AddPayment(c echo.Context) error {
-	ac := c.(*middleware.AuthContext)
-	ID, _, _ := ac.GetCurrentUser()
-
-	var body struct {
-		// ToUserID    uint    `json:"to_user_id"`
-		To          string  `json:"to" validate:"required"`
-		Amount      float32 `json:"amount" validate:"required"`
-		Description string  `json:"description"`
-	}
-
-	err := c.Bind(&body)
-
-	if err != nil {
-		return c.JSON(http.StatusBadGateway, util.SendMessage("INVALID_BODY"))
-	}
-
-	if len(strings.Trim(body.To, " ")) == 0 {
-		return c.JSON(http.StatusBadRequest, util.SendMessage("TO_FIELD_REQUIRED"))
-	}
-
-	payment, err := repository.AddPayment(ID, body.To, body.Amount, body.Description)
-
-	if err != nil {
-
-		return c.JSON(http.StatusBadRequest, util.SendMessage(err.Error()))
-	}
-
-	return c.JSON(http.StatusOK, payment)
+func NewHandler(grpcServer *grpc.Server) {
+	pb.RegisterPaymentServiceServer(grpcServer, &handler{})
 }
 
-// UpdatePayment updates an existing payment's details.
-// It first verifies the user's identity from the authentication context,
-// then validates the request body for the required fields. If validation passes,
-// it proceeds to update the payment details in the repository.
-func UpdatePayment(c echo.Context) error {
-	// Extract the current user's ID from the authentication context
-	ac := c.(*middleware.AuthContext)
-	ID, _, _ := ac.GetCurrentUser()
-
-	var body struct {
-		PaymentID   uint    `json:"payment_id" validate:"required"`
-		To          string  `json:"to" validate:"required"`
-		Amount      float32 `json:"amount" validate:"required"`
-		Description string  `json:"description"`
-	}
-
-	err := c.Bind(&body)
+func (h *handler) GetPayment(c context.Context, req *pb.GetPaymentRequest) (*pb.PaymentList, error) {
+	payments, err := repository.ViewPayment(uint(req.From))
 
 	if err != nil {
-		return c.JSON(http.StatusBadGateway, util.SendMessage("INVALID_BODY"))
+		return nil, err
 	}
 
-	if len(strings.Trim(body.To, " ")) == 0 {
-		return c.JSON(http.StatusBadRequest, util.SendMessage("TO_FIELD_REQUIRED"))
+	pbPayments := &pb.PaymentList{}
+
+	for _, v := range payments {
+		pbPayments.Payments = append(pbPayments.Payments, &pb.Payment{
+			ID:          int32(v.ID),
+			From:        uint64(v.FromUserId),
+			To:          v.To,
+			Amount:      v.Amount,
+			Description: v.Description,
+			UpdatedAt:   v.UpdatedAt.String(),
+			CreatedAt:   v.CreatedAt.String(),
+		})
 	}
-
-	// TODO: add validation if all fields are present or not
-
-	payment, err := repository.UpdatePayment(ID, body.PaymentID, body.Amount, body.To, body.Description)
-
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, util.SendMessage(err.Error()))
-	}
-
-	return c.JSON(http.StatusOK, payment)
+	return pbPayments, nil
 }
 
-// DeletePayment handles the request to delete a specific payment.
-// It extracts the current user's ID from the authentication context,
-// then reads the payment ID from the request query. After validating the input,
-// it calls the repository to delete the specified payment. 
-func DeletePayment(c echo.Context) error {
-	ac := c.(*middleware.AuthContext)
-	ID, _, _ := ac.GetCurrentUser()
-
-	var body struct {
-		PaymentID uint `query:"payment_id" validate:"required"`
-	}
-
-	err := c.Bind(&body)
+func (h *handler) AddPayment(c context.Context, req *pb.AddPaymentRequest) (*pb.Payment, error) {
+	payment, err := repository.AddPayment(uint(req.From), req.To, req.Amount, req.Description)
 
 	if err != nil {
-		return c.JSON(http.StatusBadGateway, util.SendMessage("INVALID_PARAMS"))
+		return nil, err
 	}
 
-	payment, err := repository.DeletePayment(ID, body.PaymentID)
+	return &pb.Payment{
+		ID: int32(payment.ID),
+	}, nil
+}
+
+func (h *handler) UpdatePayment(c context.Context, req *pb.UpdatePaymentRequest) (*pb.Payment, error) {
+	payment, err := repository.UpdatePayment(uint(req.From), uint(req.PaymentId), req.Amount, req.To, req.Description)
 
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, util.SendMessage(err.Error()))
+		return nil, err
+	}
+
+	return &pb.Payment{
+		ID:          int32(payment.ID),
+		To:          payment.To,
+		Amount:      payment.Amount,
+		Description: payment.Description,
+		UpdatedAt:   payment.UpdatedAt.String(),
+		CreatedAt:   payment.CreatedAt.String(),
+	}, nil
+}
+
+func (h *handler) DeletePayment(c context.Context, req *pb.DeletePaymentRequest) (*pb.DeletePaymentResponse, error) {
+	payment, err := repository.DeletePayment(uint(req.UserId), uint(req.PaymentId))
+
+	if err != nil {
+		return nil, err
 	}
 
 	result := make(map[string]int)
 	result["rowsAffected"] = int(payment)
-	return c.JSON(http.StatusOK, result)
+	return &pb.DeletePaymentResponse{
+		RowsAffected: int32(payment),
+	}, nil
 }

@@ -27,13 +27,12 @@ func ConnectDB() {
 
 	dbUrl := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", dbUser, dbPass, dbHost, dbPort, dbName)
 	db, err = gorm.Open(postgres.Open(dbUrl), &gorm.Config{})
-
 	if err != nil {
 		panic(err.Error())
 	}
 
 	db.AutoMigrate(&model.Payment{})
-	fmt.Println("Auth Service Successfully connected to database!")
+	fmt.Println("Payment Service Successfully connected to database!")
 }
 
 func GetDB() *gorm.DB {
