@@ -6,7 +6,6 @@ import (
 	"auth-service/src/repository"
 	"auth-service/src/util"
 	"errors"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -93,14 +92,14 @@ func Refresh(c echo.Context) error {
 	// get token strings from cookies
 	accessTokenString, err := c.Cookie("ACCESS_TOKEN")
 
-	if err != nil {
-		return c.JSON(http.StatusForbidden, util.SendMessage("INVALID_TOKEN 1"))
+	if err != nil || accessTokenString.Value == "" {
+		return c.JSON(http.StatusForbidden, util.SendMessage("ACCESS_INVALID_TOKEN"))
 	}
 
 	refreshTokenString, err := c.Cookie("REFRESH_TOKEN")
 
-	if err != nil {
-		return c.JSON(http.StatusForbidden, util.SendMessage("INVALID_TOKEN 2"))
+	if err != nil || refreshTokenString.Value == "" {
+		return c.JSON(http.StatusForbidden, util.SendMessage("REFRESH_INVALID_TOKEN"))
 	}
 
 	storedRefreshTokenString, err := database.GetCache(accessTokenString.Value)
@@ -108,7 +107,7 @@ func Refresh(c echo.Context) error {
 	// delete cache
 
 	if err != nil {
-		return c.JSON(http.StatusForbidden, util.SendMessage("INVALID_TOKEN 3"))
+		return c.JSON(http.StatusForbidden, util.SendMessage("CACHE_TOKEN_NOT_FOUND"))
 	}
 
 	if strings.Compare(storedRefreshTokenString, refreshTokenString.Value) != 0 {
@@ -122,19 +121,19 @@ func Refresh(c echo.Context) error {
 	accessTokenExpirationTime, err := accessToken.Claims.GetExpirationTime()
 	if err != nil {
 		// show access forbidden
-		return c.JSON(http.StatusForbidden, util.SendMessage("INVALID_TOKEN 4"))
+		return c.JSON(http.StatusForbidden, util.SendMessage("INVALID_ACCESS_TOKEN"))
 	}
 
 	if time.Now().Before(accessTokenExpirationTime.Time) {
 		// auth token is not expired
-		return c.JSON(http.StatusOK, util.SendMessage("VALID"))
+		return c.JSON(http.StatusNotAcceptable, util.SendMessage("VALID_TOKEN"))
 	}
 
 	// check if refresh Token is expired
 	refreshTokenExpirationTime, err := refreshToken.Claims.GetExpirationTime()
 	if err != nil {
 		// show access forbidden
-		return c.JSON(http.StatusForbidden, util.SendMessage("INVALID_TOKEN 5"))
+		return c.JSON(http.StatusForbidden, util.SendMessage("INVALID_REFRESH_TOKEN"))
 	}
 
 	if time.Now().After(refreshTokenExpirationTime.Time) {
@@ -144,12 +143,11 @@ func Refresh(c echo.Context) error {
 
 	database.DeleteCache(accessTokenString.Value)
  
-	log.Print(accessToken.Claims)
 	// auth token is expired and refresh token is not expired
 	claims, ok := accessToken.Claims.(*util.AccessTokenClaim)
 
 	if !ok {
-		return c.JSON(http.StatusBadGateway, util.SendMessage("INVALID_TOKEN 6"))
+		return c.JSON(http.StatusBadGateway, util.SendMessage("INVALID_TOKEN"))
 	}
 
 	user, err := repository.GetUserByEmail(claims.Email)
@@ -197,5 +195,19 @@ func createAndHandleTokens(c echo.Context, user *model.User) error {
 		return c.JSON(http.StatusBadGateway, util.SendMessage("COULD_NOT_SET_TOKENS"))
 	}
 
+	return c.JSON(http.StatusOK, util.SendMessage("SUCCESS"))
+}
+
+func Logout(c echo.Context) error {
+	accessTokenString, err := c.Cookie("ACCESS_TOKEN")
+
+	if err != nil || accessTokenString.Value == "" {
+		return c.JSON(http.StatusForbidden, util.SendMessage("TOKEN_NOT_FOUND"))
+	}
+
+	util.DeleteCookie(c, "ACCESS_TOKEN")
+	util.DeleteCookie(c, "REFRESH_TOKEN")
+	database.DeleteCache(accessTokenString.Value)
+	
 	return c.JSON(http.StatusOK, util.SendMessage("SUCCESS"))
 }

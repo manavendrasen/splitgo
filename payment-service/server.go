@@ -17,18 +17,6 @@ func main() {
 
 	e.GET("/", handler.GetAppStatus)
 
-	/*
-		Payment Service
-		- get all payments for user
-		- add payment for user
-		- edit payment details for user
-		- delete payment for user
-	*/
-
-	e.GET("/api/v1/payment", middleware.Auth(handler.GetPayments))
-	e.POST("/api/v1/payment", middleware.Auth(handler.AddPayment))
-	e.PATCH("/api/v1/payment", middleware.Auth(handler.UpdatePayment))
-	e.DELETE("/api/v1/payment", middleware.Auth(handler.DeletePayment))
 
 	e.Logger.Fatal(e.Start(":8080"))
 

@@ -49,3 +49,6 @@
 - [ ] Telemetry Middleware
 - [ ] Sending Telemetry though RabbitMQ
 - [ ] Structured Logging
+
+## Resources
+- https://youtu.be/KdnxzgSNLTU

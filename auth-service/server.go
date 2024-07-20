@@ -20,16 +20,23 @@ func main() {
 
 	e.GET("/", handler.GetAppStatus)
 
-	/*
-		Auth  Service
-		- sign up
-		- login
-	*/
+	/*-------------------
+					AUTH
+	-------------------*/
 
 	e.POST("/api/v1/auth/sign-up", handler.SignUp)
 	e.POST("/api/v1/auth/login", handler.Login)
 	e.POST("/api/v1/auth/refresh", handler.Refresh)
+	e.POST("/api/v1/auth/logout", handler.Logout)
+
+	/** -------------------
+				API GATEWAY
+	---------------------**/
+
+	e.GET("/api/v1/payments", middleware.Auth(handler.GetPayments))
+	e.POST("/api/v1/payments", middleware.Auth(handler.AddPayment))
+	e.PATCH("/api/v1/payments", middleware.Auth(handler.UpdatePayment))
+	e.DELETE("/api/v1/payments", middleware.Auth(handler.DeletePayment))
 
 	e.Logger.Fatal(e.Start(":8080"))
-
 }
