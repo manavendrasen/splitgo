@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"payment-service/model"
+	"payment-service/src/model"
 
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"

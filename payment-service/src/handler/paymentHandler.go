@@ -2,9 +2,9 @@ package handler
 
 import (
 	"net/http"
-	"payment-service/middleware"
-	"payment-service/repository"
-	"payment-service/util"
+	"payment-service/src/middleware"
+	"payment-service/src/repository"
+	"payment-service/src/util"
 	"strings"
 
 	"github.com/labstack/echo/v4"

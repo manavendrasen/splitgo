@@ -1,9 +1,9 @@
 package main
 
 import (
-	"payment-service/database"
-	"payment-service/handler"
-	"payment-service/middleware"
+	"payment-service/src/database"
+	"payment-service/src/handler"
+	"payment-service/src/middleware"
 
 	"github.com/labstack/echo/v4"
 )
