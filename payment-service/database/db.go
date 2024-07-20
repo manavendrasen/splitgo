@@ -13,7 +13,7 @@ import (
 
 var db *gorm.DB
 
-func Connect() {
+func ConnectDB() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -32,8 +32,8 @@ func Connect() {
 		panic(err.Error())
 	}
 
-	db.AutoMigrate(&model.User{}, &model.Payment{})
-	fmt.Println("Successfully connected to database!")
+	db.AutoMigrate(&model.Payment{})
+	fmt.Println("Auth Service Successfully connected to database!")
 }
 
 func GetDB() *gorm.DB {

@@ -13,5 +13,5 @@ type User struct {
 	PhoneNumber    string `gorm:"unique"`
 	ProfilePicture string
 
-	FromPayment []Payment `gorm:"foreignKey:FromUserId"`
+	// FromPayment []Payment `gorm:"foreignKey:FromUserId"`
 }

@@ -11,20 +11,11 @@ import (
 func main() {
 	e := echo.New()
 	e.Use(middleware.Logger())
-	
+
 	// Initializing Database Connection
-	database.Connect()
+	database.ConnectDB()
 
 	e.GET("/", handler.GetAppStatus)
-
-	/*
-		Auth  Service
-		- sign up
-		- login
-	*/
-
-	e.POST("/sign-up", handler.SignUp)
-	e.POST("/login", handler.Login)
 
 	/*
 		Payment Service
@@ -34,12 +25,10 @@ func main() {
 		- delete payment for user
 	*/
 
-	e.GET("/payment", middleware.Auth(handler.GetPayments))
-	e.POST("/payment", middleware.Auth(handler.AddPayment))
-	e.PATCH("/payment", middleware.Auth(handler.UpdatePayment))
-	e.DELETE("/payment", middleware.Auth(handler.DeletePayment))
-
-	
+	e.GET("/api/v1/payment", middleware.Auth(handler.GetPayments))
+	e.POST("/api/v1/payment", middleware.Auth(handler.AddPayment))
+	e.PATCH("/api/v1/payment", middleware.Auth(handler.UpdatePayment))
+	e.DELETE("/api/v1/payment", middleware.Auth(handler.DeletePayment))
 
 	e.Logger.Fatal(e.Start(":8080"))
 

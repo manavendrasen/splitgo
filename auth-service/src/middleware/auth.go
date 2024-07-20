@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"auth-service/src/util"
 	"errors"
 	"log"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
+
 
 type AuthContext struct {
 	echo.Context
@@ -24,9 +26,9 @@ func (c *AuthContext) GetCurrentUser() (uint, string, string) {
 func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		tokenString, err := c.Cookie("auth")
+		tokenString, err := c.Cookie("ACCESS_TOKEN")
 		if err != nil {
-			return err
+			return c.JSON(http.StatusUnauthorized, util.SendMessage("ACCESS_TOKEN_NOT_FOUND"))
 		}
 
 		// Parse takes the token string and a function for looking up the key. The latter is especially
@@ -44,22 +46,22 @@ func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 		})
 
 		if err != nil {
-			log.Fatal(err)
+			log.Print(err)
 		}
 
-		claims, ok := token.Claims.(jwt.MapClaims)
+		claims, ok := token.Claims.(util.AccessTokenClaim)
 
 		if ok {
 			contextWithUserDetails := &AuthContext{
 				Context:         c,
-				userID:          uint(claims["ID"].(float64)),
-				userEmail:       claims["Email"].(string),
-				userDisplayName: claims["DisplayName"].(string),
+				userID:          uint(claims.ID),
+				userEmail:       claims.Email,
+				userDisplayName: claims.DisplayName,
 			}
 			return next(contextWithUserDetails)
 		} else {
-			log.Fatal("Error Getting Cookie")
+			c.JSON(http.StatusUnauthorized, util.SendMessage("INVALID_ACCESS_TOKEN"))
 		}
-		return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized")
+		return c.JSON(http.StatusUnauthorized, util.SendMessage("ACCESS_TOKEN_NOT_FOUND"))
 	}
 }
