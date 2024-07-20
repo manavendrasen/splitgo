@@ -51,4 +51,6 @@
 - [ ] Structured Logging
 
 ## Resources
-- https://youtu.be/KdnxzgSNLTU
+- Architecture https://youtu.be/KdnxzgSNLTU
+- OAuth https://youtu.be/iHFQyd__2A0
+- Architecture https://youtube.com/playlist?list=PL7yAAGMOat_Fn8sAXIk0WyBfK_sT1pohu&si=rQtGmmh-4K9mjN31
