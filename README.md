@@ -4,7 +4,8 @@
 	- How will common deps be shared?
 - [ ] Dockerize auth and payment service
 - [ ] Write tests for Auth
-
+- [ ] Implement Google Auth
+      
 ### Service-to-Service Communication
 - [x] Gateway Service
 - [x] Commons Package
@@ -15,11 +16,11 @@
 ### Service Discovery
 - [ ] Service Discovery
 - [ ] Creating the Registry
-- [ ] Adopting Service Discovery with Consul
 
-- [ ] Write Kubernetes for auth and payment service deployment - use EKS
+- [ ] Write Kubernetes for auth and payment service deployment
 - [ ] Write Github action to automatically deploy
 - [ ] Configure L7 Load Balancer to auth and payment service
+      
 - [ ] Implement Split service
 - [ ] Write Tests
 - [ ] Dockerize Split service
@@ -52,5 +53,7 @@
 
 ## Resources
 - Architecture https://youtu.be/KdnxzgSNLTU
-- OAuth https://youtu.be/iHFQyd__2A0
-- Architecture https://youtube.com/playlist?list=PL7yAAGMOat_Fn8sAXIk0WyBfK_sT1pohu&si=rQtGmmh-4K9mjN31
+- [OAuth - GOTH](https://youtu.be/iHFQyd__2A0)/https://github.com/motiv-labs/janus
+- Architecture [Building Microservices in Golang/Go](https://youtube.com/playlist?list=PL7yAAGMOat_Fn8sAXIk0WyBfK_sT1pohu&si=rQtGmmh-4K9mjN31)
+- [The Anatomy of an API Gateway in Golang](https://hackernoon.com/the-anatomy-of-an-api-gateway-in-golang)
+- [Build a gRPC API using Go and gRPC-gateway](https://www.koyeb.com/tutorials/build-a-grpc-api-using-go-and-grpc-gateway)
