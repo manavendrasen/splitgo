@@ -58,5 +58,5 @@
 - [The Anatomy of an API Gateway in Golang](https://hackernoon.com/the-anatomy-of-an-api-gateway-in-golang)
 - [Build a gRPC API using Go and gRPC-gateway](https://www.koyeb.com/tutorials/build-a-grpc-api-using-go-and-grpc-gateway)
 
-  ## UI
-  https://www.figma.com/design/cNV9lPWDFrHplMdr6WXBP9/Splitgo?node-id=0-1&t=7AnvRNrIEIlJks8n-1
+## UI
+https://www.figma.com/design/cNV9lPWDFrHplMdr6WXBP9/Splitgo?node-id=0-1&t=7AnvRNrIEIlJks8n-1
