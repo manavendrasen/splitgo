@@ -2,8 +2,8 @@ package repository
 
 import (
 	"errors"
-	"payment-service/database"
-	"payment-service/model"
+	"payment-service/src/database"
+	"payment-service/src/model"
 	"strings"
 )
 

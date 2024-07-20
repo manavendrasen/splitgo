@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+option go_package = ".";
+
+package commons;
+
+service PaymentService {
+	rpc AddPayment(AddPaymentRequest) returns (Payment) {};
+	rpc GetPayment(GetPaymentRequest) returns (PaymentList) {};
+	rpc DeletePayment(DeletePaymentRequest) returns (DeletePaymentResponse) {};
+	rpc UpdatePayment(UpdatePaymentRequest) returns (Payment) {};
+}
+
+message AddPaymentRequest {
+	uint64 From = 1;
+	string To = 2;
+	float Amount = 3;
+	string Description = 4;
+}
+
+message GetPaymentRequest {
+	uint64 From = 1;
+}
+
+message UpdatePaymentRequest {
+	uint64 From = 1;
+	string To = 2;
+	float Amount = 3;
+	string Description = 4;
+	uint64 PaymentId = 5;
+}
+
+message DeletePaymentRequest {
+	uint64 UserId = 1;
+	uint64 PaymentId = 2;
+}
+
+message DeletePaymentResponse {
+	int32 RowsAffected = 1;
+}
+
+message Payment {
+	int32 ID = 1;
+	string To = 2;
+	uint64 From = 3;
+	float Amount = 4;
+	string Description = 5;
+	string CreatedAt = 6;
+	string UpdatedAt = 7;
+	string DeletedAt = 8;
+
+}
+
+message PaymentList {
+	repeated Payment payments = 1;
+}

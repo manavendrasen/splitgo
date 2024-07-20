@@ -2,61 +2,53 @@ package middleware
 
 import (
 	"auth-service/src/util"
-	"errors"
 	"log"
 	"net/http"
-	"os"
 
-	"github.com/golang-jwt/jwt/v5"
+	pb "common"
+
 	"github.com/labstack/echo/v4"
 )
 
-
 type AuthContext struct {
 	echo.Context
-	userID          uint
-	userEmail       string
-	userDisplayName string
+	userID               uint
+	userEmail            string
+	userDisplayName      string
+	paymentServiceClient pb.PaymentServiceClient
 }
 
 func (c *AuthContext) GetCurrentUser() (uint, string, string) {
 	return c.userID, c.userEmail, c.userDisplayName
 }
 
+func (c *AuthContext) GetClient() (pb.PaymentServiceClient) {
+	return c.paymentServiceClient
+}
+
 func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		accessTokenString, err := c.Cookie("ACCESS_TOKEN")
 
-		tokenString, err := c.Cookie("ACCESS_TOKEN")
-		if err != nil {
+		if err != nil || accessTokenString.Value == "" {
 			return c.JSON(http.StatusUnauthorized, util.SendMessage("ACCESS_TOKEN_NOT_FOUND"))
 		}
 
-		// Parse takes the token string and a function for looking up the key. The latter is especially
-		// useful if you use multiple keys for your application.  The standard is to use 'kid' in the
-		// head of the token to identify which key to use, but the parsed token (head and claims) is provided
-		// to the callback, providing flexibility.
-		token, err := jwt.Parse(tokenString.Value, func(token *jwt.Token) (interface{}, error) {
-			// Don't forget to validate the alg is what you expect:
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, errors.New("unexpected signing method")
-			}
-
-			// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-			return []byte(os.Getenv("JWT_KEY")), nil
-		})
+		accessToken, err := util.ParseToken(accessTokenString.Value)
 
 		if err != nil {
 			log.Print(err)
 		}
 
-		claims, ok := token.Claims.(util.AccessTokenClaim)
+		claims, ok := accessToken.Claims.(*util.AccessTokenClaim)
 
 		if ok {
 			contextWithUserDetails := &AuthContext{
-				Context:         c,
-				userID:          uint(claims.ID),
-				userEmail:       claims.Email,
-				userDisplayName: claims.DisplayName,
+				Context:              c,
+				userID:               uint(claims.ID),
+				userEmail:            claims.Email,
+				userDisplayName:      claims.DisplayName,
+				// paymentServiceClient: paymentServiceClient,
 			}
 			return next(contextWithUserDetails)
 		} else {

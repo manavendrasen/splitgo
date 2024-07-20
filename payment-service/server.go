@@ -1,35 +1,30 @@
 package main
 
 import (
-	"payment-service/database"
-	"payment-service/handler"
-	"payment-service/middleware"
+	"log"
+	"net"
+	"payment-service/src/database"
+	"payment-service/src/handler"
 
-	"github.com/labstack/echo/v4"
+	"google.golang.org/grpc"
 )
 
 func main() {
-	e := echo.New()
-	e.Use(middleware.Logger())
+	grpcServer := grpc.NewServer()
+	handler.NewHandler(grpcServer)
 
 	// Initializing Database Connection
 	database.ConnectDB()
 
-	e.GET("/", handler.GetAppStatus)
+	l, err := net.Listen("tcp", ":9000")
 
-	/*
-		Payment Service
-		- get all payments for user
-		- add payment for user
-		- edit payment details for user
-		- delete payment for user
-	*/
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 
-	e.GET("/api/v1/payment", middleware.Auth(handler.GetPayments))
-	e.POST("/api/v1/payment", middleware.Auth(handler.AddPayment))
-	e.PATCH("/api/v1/payment", middleware.Auth(handler.UpdatePayment))
-	e.DELETE("/api/v1/payment", middleware.Auth(handler.DeletePayment))
+	defer l.Close()
 
-	e.Logger.Fatal(e.Start(":8080"))
-
+	if err := grpcServer.Serve(l); err != nil {
+		log.Fatal(err.Error())
+	}
 }
