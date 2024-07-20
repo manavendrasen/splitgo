@@ -6,10 +6,10 @@
 - [ ] Write tests for Auth
 
 ### Service-to-Service Communication
-- [ ] Gateway Service
-- [ ] Commons Package
-- [ ] Understanding Service-to-Service Communication
-- [ ] Leveraging gRPC for Efficient Intra-Service Communication
+- [x] Gateway Service
+- [x] Commons Package
+- [x] Understanding Service-to-Service Communication
+- [x] Leveraging gRPC for Efficient Intra-Service Communication
 - [ ] Payload validation
 
 ### Service Discovery
