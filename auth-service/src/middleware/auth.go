@@ -24,10 +24,6 @@ func Auth(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		accessTokenString, err := c.Cookie("ACCESS_TOKEN")
 
-		for cc := range c.Cookies() {
-			log.Print(c.Cookies()[cc].Value)
-		}
-
 		if err != nil || accessTokenString.Value == "" {
 			return c.JSON(http.StatusUnauthorized, util.SendMessage("ACCESS_TOKEN_NOT_FOUND"))
 		}
